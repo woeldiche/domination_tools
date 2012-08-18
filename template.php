@@ -31,6 +31,7 @@
  */
 function THEMENAME_preprocess(&$vars, $hook) {
   
+  // Add template suggestions for page.tpl.php.
   if ($hook == 'page') {
     // Check if the page has a node type and add template suggestion.
     if (isset($vars['node']->type)) {
@@ -39,6 +40,7 @@ function THEMENAME_preprocess(&$vars, $hook) {
     }
   }
   
+  // Add template suggestions for node.tpl.php.
   if ($hook == 'node') {  
     // Pattern: node--[view mode].tpl.php including custom view modes.
     $vars['theme_hook_suggestions'][] = 'node__' . $vars['view_mode'];
@@ -47,6 +49,7 @@ function THEMENAME_preprocess(&$vars, $hook) {
     $vars['theme_hook_suggestions'][] = 'node__' . $vars['type'] . '__' . $vars['view_mode'];    
   }
   
+  // Add template suggestions for block.tpl.php.
   if ($hook == 'block') {
     // Add theme suggestion based module.
     switch($vars['elements']['#block']->module) {
@@ -468,8 +471,92 @@ function THEMENAME_menu_tree__MENU_NAME($vars) {
 /**
  * Implements hook_form_FORMID_alter().
  * 
- * Adjust global search box.
+ * Adds classes to items on specific form.
  */
 function THEMENAME_form_FORMID_alter(&$form) {
-  // .. add example of how to add classes to fields and buttons.
+  // Add classes to submit button.
+  $form['actions']['submit']['#attributes']['class'][] = 'button';
+  $form['actions']['submit']['#attributes']['class'][] = 'submit';
+
+  // Add classes to items based on type. Will ignore fields grouped inside fieldsets.
+  foreach ($form as &$item) {
+    // Run through array and act on every item with a #type attribute.
+    // Test if $item is an array and has a type.
+    if (is_array($item) && isset($item['#type'])) {
+      switch ($item['#type']) {
+        case 'textfield':
+        case 'textarea':
+          $item['#attributes']['class'][] = 'text-secondary';
+          break;
+
+        case 'foo':
+          $item['#attributes']['class'][] = 'text-label';
+          break;
+          
+        default:
+          $item['#attributes']['class'][] = 'text-form';
+          break;
+      }
+    }
+  }
+}
+
+
+/**
+ * Implements hook_form_FORMID_alter().
+ * 
+ * Adds classes to items all forms based on item type.
+ */
+function THEMENAME_form_alter(&$form) {
+  // Add classes to submit button.
+  $form['actions']['submit']['#attributes']['class'][] = 'button';
+  $form['actions']['submit']['#attributes']['class'][] = 'submit';
+
+  // Add classes to items based on type. Will ignore fields grouped inside fieldsets.
+  foreach ($form as &$item) {
+    // Run through array and act on every item with a #type attribute.
+    // Test if $item is an array and has a type.
+    if (is_array($item) && isset($item['#type'])) {
+      switch ($item['#type']) {
+        case 'submit':
+          $item['#attributes']['class'][] = 'button';
+          $item['#attributes']['class'][] = 'submit';
+          break;
+
+        case 'textfield':
+        case 'textarea':
+          $item['#attributes']['class'][] = 'text-secondary';
+          break;
+
+        case 'foo':
+          $item['#attributes']['class'][] = 'text-label';
+          break;
+        
+        case 'fieldset':
+          // If type is fieldset, look for fields inside.
+          foreach ($item as &$child) {
+            if (is_array($child) && isset($child['#type'])) {
+              switch ($item['#type']) {
+                case 'submit':
+                  $item['#attributes']['class'][] = 'button';
+                  $item['#attributes']['class'][] = 'submit';
+                  break;
+        
+                case 'textfield':
+                case 'textarea':
+                  $item['#attributes']['class'][] = 'text-secondary';
+                  break;
+        
+                case 'foo':
+                  $item['#attributes']['class'][] = 'text-label';
+                  break;
+            }
+          }
+          
+        default:
+          $item['#attributes']['class'][] = 'text-form';
+          break;
+      }
+    }
+  }
 }
