@@ -74,7 +74,7 @@ function THEMENAME_preprocess(&$vars, $hook) {
  */
 function THEMENAME_preprocess_html(&$vars) {
   // Get the current path and break it into sections.
-  $parts = explode('/', $vars['page']['path_alias']);
+  $parts = explode('/', drupal_get_path_alias());
 
   // Add classes to body based on first section of path.    
   switch ($parts[0]) {
