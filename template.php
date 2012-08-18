@@ -33,7 +33,7 @@ function THEMENAME_preprocess(&$vars, $hook) {
   
   if ($hook == 'page') {
     // Check if the page has a node type and add template suggestion.
-    if (isset($vars['node']->type) {
+    if (isset($vars['node']->type)) {
       // Pattern: page--node--[node_type].tpl.php for node pages.
       $vars['theme_hook_suggestions'][] = 'page__node__' . $vars['node']->type;
     }
@@ -178,7 +178,7 @@ function THEMENAME_preprocess_block(&$vars, $hook) {
   /* 
    * Add classes based on module excluding certain regions.
    */
-  switch ($vars['elements']['#block']->region;) { 
+  switch ($vars['elements']['#block']->region) { 
 
     // Exclude certain blocks in certain regions.
     case 'footer_sitemap':
@@ -469,3 +469,5 @@ function THEMENAME_menu_tree__MENU_NAME($vars) {
 function THEMENAME_form_FORMID_alter(&$form) {
   // .. add example of how to add classes to fields and buttons.
 }
+
+?>
