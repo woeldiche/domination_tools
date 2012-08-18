@@ -406,6 +406,7 @@ function THEMENAME_preprocess_panels_pane(&$vars) {
       case 'field_organizer':
       case 'field_contact_information':
         $vars['title_attributes_array']['class'] = array('list-key');
+
       default;
     }
   
@@ -426,7 +427,7 @@ function THEMENAME_preprocess_panels_pane(&$vars) {
         $vars['title_attributes_array']['class'][] = 'title-field';
 
       default: 
-      break;
+        break;
     }
   }
   
@@ -469,5 +470,3 @@ function THEMENAME_menu_tree__MENU_NAME($vars) {
 function THEMENAME_form_FORMID_alter(&$form) {
   // .. add example of how to add classes to fields and buttons.
 }
-
-?>
