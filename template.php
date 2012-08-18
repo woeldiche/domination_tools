@@ -1,76 +1,401 @@
 <?php
+/**
+ * A toolbox of functions to help you theme Drupal sites.
+ *
+ * Most of these functions are intended to inject classes for styling into
+ * your Drupal site to allow for a more object oriented approach to CSS.
+ *
+ * Secondly the functions expand on Drupal core's template suggestions and 
+ * give examples of how to insert custom template suggestions to streamline
+ * the number of tpl.php-files in your theme.
+ * 
+ * - Replace any instance of THEMENAME with the system name of the theme.
+ * - Replace any instance of MENU_NAME or FORMID with the system name of the
+ *   menu or formID of the form.
+ * - Adapt, remove or combine conditions as your design dictates.
+ * - Remove all unneeded code.
+ *
+ * Fork this on Github.com/woeldiche/domination-tools.
+ */
+
+/**
+ * Expand Drupal's standard template suggestions.
+ * 
+ * Some options are:
+ * - For page.tpl.php:
+ *   - Node type:   $vars['node']->type
+ *   - User role:   $vars['user']['roles']
+ * - For node.tpl.php:
+ *   - View mode:   $vars['view_mode']
+ *   - Node type:   $vars['type']
+ */
+function THEMENAME_preprocess(&$vars, $hook) {
+  
+  if ($hook == 'page') {
+    // Check if the page has a node type and add template suggestion.
+    if (isset($vars['node']->type) {
+      // Pattern: page--node--[node_type].tpl.php for node pages.
+      $vars['theme_hook_suggestions'][] = 'page__node__' . $vars['node']->type;
+    }
+  }
+  
+  if ($hook == 'node') {  
+    // Pattern: node--[view mode].tpl.php including custom view modes.
+    $vars['theme_hook_suggestions'][] = 'node__' . $vars['view_mode'];
+    
+    // Pattern: node--[node type]--[view mode].tpl.php.
+    $vars['theme_hook_suggestions'][] = 'node__' . $vars['type'] . '__' . $vars['view_mode'];    
+  }
+  
+  if ($hook == 'block') {
+    // Add theme suggestion based module.
+    switch($vars['elements']['#block']->module) {
+      case 'menu':
+      case 'menu_block':
+        $vars['theme_hook_suggestions'][] = 'block__navigation';
+        break;
+      
+      // Render some blocks without wrapper and leave it to the module.
+      case 'views':
+      case 'mini_panels':
+        $vars['theme_hook_suggestions'][] = 'block__nowrapper';
+      
+      default:
+        break;
+    }
+  }
+}
+
+
+/**
+ * Implements template_preprocess_html().
+ *
+ * Adds classes to <body> based on path.
+ */
+function designguide_preprocess_html(&$vars) {
+  // Get the current path and break it into sections.
+  $path_alias = drupal_get_path_alias();
+  $parts = explode('/', $vars['page']['path_alias']);
+
+  // Add classes to body based on first section of path.    
+  switch ($parts[0]) {
+    case 'path_foo':
+      $vars['classes_array'][] = 'section-foo';
+    
+    case 'path_bar':
+    case 'path_baz':
+      $vars['classes_array'][] = 'section-bar';
+    
+    default:
+      $vars['classes_array'][] = 'section-baz';
+  }
+  
+  // Add classes based on combined first and second section.
+  switch ($parts[0] . '-' . $parts[1]) {
+    case 'path_foo-list':
+    case 'path_baz-list':
+      $vars['classes_array'][] = 'list-page';
+      
+    default:
+      break;
+  }
+}
+
+/**
+ * Sets variable that tells the page if it is being rendered in the overlay.
+ *
+ * Allows you to hide eg. sidebars in the overlay.
+ *
+ * Usage in page.tpl.php:
+ *   <php? if ($region_name && !$in_overlay): ?>
+ *     <?php print render($region_name); ?>
+ *   <?php endif; ?>
+ */
+function THEMENAME_preprocess_page(&$vars) {
+  if (overlay_get_mode() == 'child') {
+    $vars['in_overlay'] = TRUE;
+  } else {
+    $vars['in_overlay'] = FALSE;
+  }
+}
+
 
 /**
  * Implements template_preprocess_block().
  *
  * Adds classes for styling.
+ *
+ * Good options are:
+ * - Block name:    $vars['elements']['#block']->bid.
+ * - Module:        $vars['elements']['#block']->module.
+ * - Region:        $vars['elements']['#block']->region.
  */
-function personaleweb_preprocess_block(&$vars, $hook) {
-  //kpr($vars['elements']['#block']->module . '/' . $vars['elements']['#block']->region);
-  //kpr($vars);
-
+function THEMENAME_preprocess_block(&$vars, $hook) {
+  /**
+   * Add classes to blocks created by Views based on views name.
+   */
   // Check if block was created by views.
   if ($vars['elements']['#block']->module == 'views') {
     
-    // If views name exists directly get that.
-    if (isset($vars['elements']['#views_contextual_links_info']['views_ui']['view']->name)) {
-      $views_name = $vars['elements']['#views_contextual_links_info']['views_ui']['view']->name;
-    } 
-    
-    // If not grab it from ['#block']->delta.
-    else {
-      $block_delta = explode('-', $vars['elements']['#block']->delta);
-      $views_name = $block_delta[0];
-    }
-       
+    // Get views name from $vars['elements']['#block']->delta.
+    $block_delta = explode('-', $vars['elements']['#block']->delta);
+    $views_name = $block_delta[0];
+           
     // Add classes based on views name.
     switch ($views_name) {
-      case 'latest_news':
-      case 'upcoming_events':
+      case 'view_foo':
+      case 'view_bar':
         $vars['title_attributes_array']['class'][] = 'title-list';
-        if ($vars['elements']['#block']->region == 'inner_right') {
-          $vars['classes_array'][] = 'block-list';
-        }
-        
         break;
       
-      case 'text_blocks_files_and_contact_info_view':
-        $vars['title_attributes_array']['class'] = array('title-block');
-        $vars['classes_array'] = array('block-secondary');
+      case 'view_baz':
+        $vars['title_attributes_array']['class'] = 'title-block';
+        $vars['classes_array'][] = 'block-secondary';
         break;
-                
-      default;
+      
+      default:
+        $vars['title_attributes_array']['class'][] = 'title-block';
+    }      
+  }   
         
-    }
-  } elseif ($vars['elements']['#block']->module == 'facetapi') {
-     $vars['classes_array'] = array('block-secondary', 'block-facet');
-     $vars['title_attributes_array']['class'] = array('title-block');
+  /**
+   * Add classes based on region.
+   */
+  switch ($vars['elements']['#block']->region) {
+    case 'region_foo':
+    case 'region_bar':
+    case 'region_baz':
+      $vars['title_attributes_array']['class'][] = 'title-list';
+      break;
     
-  } else {   
-        
-    // Else switch based on region
-    switch ($vars['elements']['#block']->region) {
-      case 'postscript_first':
-      case 'postscript_second':
-      case 'postscript_third':
-        $vars['title_attributes_array']['class'][] = 'title-list';
-        break;
+    case 'region_foobar':
+      $vars['classes_array'][] = 'block-list';
+      break;
       
-      case 'inner_right':
-        $vars['classes_array'][] = 'block-list';
+    default;
+  }
+  
+  /* 
+   * Add classes based on module excluding certain regions.
+   */
+  switch ($vars['elements']['#block']->region;) { 
+
+    // Exclude certain blocks in certain regions.
+    case 'footer_sitemap':
+    case 'user_first':
+    case 'user_second': 
+    case 'menu':
+    case 'footer_first':
+    case 'footer_second': 
+      // Do nothing.
+      break;
+       
+    default:
+      switch($vars['elements']['#block']->module) {
+        // For the rest of the regions add classes to navigation blocks.
+        case 'menu':
+        case 'menu_block':
+          $vars['attributes_array']['class'][] = 'block-style-menu';
+          break;
         
-      default;
+        // And style standard blocks.
+        case 'block':
+          $vars['attributes_array']['class'][] = 'block-secondary';
+        
+        default:
+          break;
+      }
+  }
+}
+
+
+/**
+ * Implements hook_preprocess_node.
+ * 
+ * Add styling classes based on content type.
+ *
+ * Good options are:
+ * - View Mode: $vars['view_mode']
+ * - Content type: $vars['type']
+ */
+function THEMENAME_preprocess_node(&$vars) {
+  // Add classes based on node type.
+  switch ($vars['type']) {
+    case 'news':
+    case 'pages':
+      $vars['attributes_array']['class'][] = 'content-wrapper';
+      $vars['attributes_array']['class'][] = 'text-content';
+      break;
+    default:
+      break;
+  }
+  
+  // Add classes & theme hook suggestions based on view mode.
+  switch ($vars['view_mode']) {
+    case 'block_display':
+      $vars['theme_hook_suggestions'][] = 'node__aside';
+      $vars['title_attributes_array']['class'] = array('title-block');
+      $vars['attributes_array']['class'][] = 'block-content';
+      $vars['attributes_array']['class'][] = 'st-spot';
+      $vars['attributes_array']['class'][] = 'vgrid';
+      $vars['attributes_array']['class'][] = 'clearfix';      
+      break;
+      
+    default:
+      break;
+  }
+  
+}
+
+
+/**
+ * Implements template_preprocess_field().
+ *
+ * Adds classes to field based on field name.
+ *
+ * Good options are:
+ * - Field name:    $vars['element']['#field_name'].
+ * - Content type:  $vars['element']['#bundle'].
+ * - View mode:     $vars['element']['#view_mode'].
+ */
+function THEMENAME_preprocess_field(&$vars,$hook) {
+  // add class to a specific fields across content types.
+  switch ($vars['element']['#field_name']) {
+    case 'body':
+      $vars['classes_array'][] = 'text-content';
+      break;
+    
+    case 'field_summary':
+      $vars['classes_array'][] = 'text-teaser';
+      break;
+    
+    case 'field_location':
+    case 'field_date':
+    case 'field_price':
+    case 'field_deadline':
+    case 'field_website':
+    case 'field_organizer':
+    case 'field_contact_information':
+      // Replace classes entirely, instead of adding extra.
+      $vars['classes_array'] = array('list-definition', 'text-content');
+      break;
+    
+    case 'field_image':
+      // Replace classes entirely, instead of adding extra.
+      $vars['classes_array'] = array('title-image');
+      break;
+    
+    default:
+      break;
+  }
+  
+  // Add classes to body based on content type and view mode.
+  if ($vars['element']['#field_name'] = 'body') {
+    
+    // Add classes to Foobar content type.
+    if ($content_type == 'foobar') {
+      $vars['classes_array'][] = 'text-secondary';
+    } 
+    
+    // Add classes to other content types with view mode 'teaser';
+    elseif ($view_mode == 'teaser') {
+      $vars['classes_array'][] = 'text-secondary';
+    }
+    
+    // The rest is text-content.
+    else {
+      $vars['classes_array'][] = 'text-content';
     }
   }
 }
+
+
+/**
+ * Implements template_preprocess_views_view().
+ *
+ * Adds styling classes to views.
+ * Adds custom template suggestions.
+ */
+function THEMENAME_preprocess_views_view (&$vars) {
+  /** 
+   * Add custom template suggestions to specific views.
+   */
+  switch ($vars['view']->name) {
+    case 'view_foo':
+    case 'view_bar':
+    case 'view_baz':
+      $vars['theme_hook_suggestions'][] = 'views_view__no_wrapper';
+      break;
+    
+    default:
+      break;
+  }
+  
+  /**
+   * Add alternating classes to View Foo based on offset.
+   */
+  if ($vars['view']->name == 'view_foo') {
+    switch ($vars['view']->offset) {
+      case 0:
+        break;
+      
+      case 1:
+        $vars['classes_array'][] = 'st-magenta';
+        break;
+      
+      case 2:
+        $vars['classes_array'][] = 'st-yellow';
+        break;
+      
+      case 3:
+        $vars['classes_array'][] = 'st-petroleum';
+        break;
+      
+      // Set same style on the rest.
+      default:
+        $vars['classes_array'][] = 'st-default';
+        break;
+    }    
+  }
+}
+
+/**
+ * Implements template_preprocess_views_views_fields().
+ * 
+ * Shows/hides summary on tiles based on presence of images.
+ */
+function THEMENAME_preprocess_views_view_fields(&$vars) {
+  if ($vars['view']->name == 'nodequeue_1') {
+    
+    // Check if we have both an image and a summary
+    if (isset($vars['fields']['field_image'])) {
+      
+      // If a combined field has been created, unset it and just show image
+      if (isset($vars['fields']['nothing'])) {
+        unset($vars['fields']['nothing']);
+      }
+    
+    } elseif (isset($vars['fields']['title'])) {
+      unset ($vars['fields']['title']);
+    }
+    
+    // Always unset the separate summary if set
+    if (isset($vars['fields']['field_summary'])) {
+      unset($vars['fields']['field_summary']);
+    }
+  }
+}
+
 
 /**
  * Implements template_preprocess_panels_pane().
  * 
  * Adds classes for styling.
  */
-function personaleweb_preprocess_panels_pane(&$vars) {
-  // Add styling classes to fields as panes.
+function THEMENAME_preprocess_panels_pane(&$vars) {
+  /**
+   * Add styling classes to labels/pane-titles for fields as panes.
+   */
   if ($vars['pane']->type == 'entity_field') {
     switch ($vars['content']['#field_name']) {
       case 'field_location':
@@ -83,209 +408,64 @@ function personaleweb_preprocess_panels_pane(&$vars) {
         $vars['title_attributes_array']['class'] = array('list-key');
       default;
     }
-  // add classes to views panes.
-  } elseif ($vars['pane']->type == 'views_panes') {
-    
+  
+  /**
+   * add classes to classes to labels/pane-titles for views panes.
+   */
+  if ($vars['pane']->type == 'views_panes') {
+
     // First add classes based on display
     switch ($vars['pane']->subtype) {
-      case 'tags-panel_pane_1':
-        $vars['title_attributes_array']['class'] = array('content-footer-title', 'text-secondary');
+      case 'display_name_foo':
+        $vars['title_attributes_array']['class'][] = 'content-footer-title';
+        $vars['title_attributes_array']['class'][] = 'text-secondary';
         break;
-      
+        
+      case 'display_name_bar':
+      case 'display_name_baz':
+        $vars['title_attributes_array']['class'][] = 'title-field';
+
       default: 
-    }
-    
-    // Switch add classes based on location
-    switch ($vars['pane']->panel) {
-      case 'outer_right':
-        $vars['title_attributes_array']['class'][] = 'title-block';
-        break;
+      break;
     }
   }
+  
+  /**
+   * Add classes to labels/pane-titles based on location.
+   */
+  switch ($vars['pane']->panel) {
+    case 'outer_right':
+      $vars['title_attributes_array']['class'][] = 'title-block';
+      break;
+  }
 }
+
 
 /**
- * Implements template_preprocess_fiels().
+ * Implements theme_menu_tree().
+ * 
+ * Adds classes to all menu wrappers.
  */
-function personaleweb_preprocess_field(&$vars,$hook) {
-  //kpr($vars['element']['#field_name']);
-
-  //add class to a specific field
-  kpr($vars);
-  switch ($vars['element']['#field_name']) {
-    case 'body':
-      $vars['classes_array'][] = 'text-content';
-      break;
-    case 'field_summary':
-      $vars['classes_array'][] = 'text-teaser';
-      break;
-    case 'field_location':
-    case 'field_date':
-    case 'field_price':
-    case 'field_deadline':
-    case 'field_website':
-    case 'field_organizer':
-    case 'field_contact_information':
-      $vars['classes_array'] = array('list-definition', 'text-content');
-      break;
-    case 'field_image':
-      $vars['classes_array'] = array('title-image');
-    default:
-      break;
-  }
+function THEMENAME_menu_tree($vars) {
+  return '<ul class="menu">' . $vars['tree'] . '</ul>';
 }
+
 
 /**
- * MYTHEME_theme_name().
- * wraps output in <span>
+ * Implements theme_menu_tree().
+ *
+ * Adds additional wrapper classes for specific menu.
  */
-function personaleweb_facetapi_link_active($variables) {
-  // Sanitizes the link text if necessary.
-  $sanitize = empty($variables['options']['html']);
-  $link_text = ($sanitize) ? check_plain($variables['text']) : $variables['text'];
-
-  $variables['options']['html'] = TRUE;
-  foreach ($variables['options']['attributes']['class'] as $index => $class) {
-    if ($class == 'facetapi-active') {
-      $variables['options']['attributes']['class'][$index] = 'facetapi-text-active';
-    }
-  }
-
-  return '<span class="active-link">' . theme('link', $variables) . '</span>';
+function THEMENAME_menu_tree__MENU_NAME($vars) {
+  return '<ul class="menu vertical-menu">' . $vars['tree'] . '</ul>';
 }
+
 
 /**
  * Implements hook_form_FORMID_alter().
  * 
  * Adjust global search box.
  */
-function personaleweb_form_pwb_search_form_alter(&$form) {
-  // kpr($form);
-  $form['pwb_search_container']['submit']['#type'] = 'image_button';
-  unset($form['pwb_search_container']['submit']['#value']);
-  $form['pwb_search_container']['submit']['#src'] = drupal_get_path('theme', 'personaleweb') .'/images/icon-search.png';
-  $form['pwb_search_container']['submit']['#attributes'] = array('class' => array('search-submit'),'alt' => array(t('search')));
-}
-
-/**
- * Implements template_preprocess_views_view().
- *
- * Adds styling classes to views.
- * Show/hides teaser texts on tiles based on presence of image.
- */
-function personaleweb_preprocess_views_view (&$vars) {
-  // Add classes to frontpage/sectionpage tiles.
-  if ($vars['view']->name == 'nodequeue_1') {
-        
-    // Use offset to add alternating classes to tiles
-    switch ($vars['view']->offset) {
-      case 0:
-        break;
-      case 1:
-        $vars['classes_array'][] = 'st-magenta';
-        break;
-      case 2:
-        $vars['classes_array'][] = 'st-yellow';
-        break;
-      case 3:
-        $vars['classes_array'][] = 'st-petroleum';
-        break;
-      case 4:
-        //$vars['classes_array'][] = '';
-        break;
-      default:
-    }   
-  }
-}
-
-/**
- * Implements theme_menu_tree().
- * Adds additional wrapper classes for vertical menu.
- */
-function personaleweb_menu_tree__menu_basic_pages($variables) {
-  kpr($variables);
-  return '<ul class="vertical-menu">' . $variables['tree'] . '</ul>';
-}
-
-/**
- * Implements template_preprocess_views_views_fields().
- * 
- * Shows/hides summary on tiles based on presence of images.
- */
-function personaleweb_preprocess_views_view_fields(&$vars) {
-  if ($vars['view']->name == 'nodequeue_1') {
-    // Check if we have both an image and a summary
-    if (isset($vars['fields']['field_image'])) {
-      // If a combined field has been created, unset it and just show image
-      if (isset($vars['fields']['nothing'])) {
-        unset($vars['fields']['nothing']);
-      }
-    } elseif (isset($vars['fields']['title'])) {
-      unset ($vars['fields']['title']);
-    }
-    
-    // Always unset the separate summary if set
-    if (isset($vars['fields']['field_summary'])) {
-      unset($vars['fields']['field_summary']);
-    }
-  }
-}
-
-function personaleweb_form_element__prp_facet_dropdown_checkbox($variables) {
-  $element = &$variables['element'];
-  // This is also used in the installer, pre-database setup.
-  $t = get_t();
-  
-  // This function is invoked as theme wrapper, but the rendered form element
-  // may not necessarily have been processed by form_builder().
-  $element += array(
-    '#title_display' => 'before',
-  );
-  
-  // Add element #id for #type 'item'.
-  if (isset($element['#markup']) && !empty($element['#id'])) {
-    $attributes['id'] = $element['#id'];
-  }
-  // Add element's #type and #name as class to aid with JS/CSS selectors.
-  $attributes['class'] = array('form-item');
-  if (!empty($element['#type'])) {
-    $attributes['class'][] = 'form-type-' . strtr($element['#type'], '_', '-');
-  }
-  if (!empty($element['#name'])) {
-    $attributes['class'][] = 'form-item-' . strtr($element['#name'], array(' ' => '-', '_' => '-', '[' => '-', ']' => ''));
-  }
-  // Add a class for disabled elements to facilitate cross-browser styling.
-  if (!empty($element['#attributes']['disabled'])) {
-    $attributes['class'][] = 'form-disabled';
-  }
-  $output = '<div' . drupal_attributes($attributes) . '>' . "\n";
-  
-  // If #title is not set, we don't display any label or required marker.
-  if (!isset($element['#title'])) {
-    $element['#title_display'] = 'none';
-  }
-  $prefix = isset($element['#field_prefix']) ? '<span class="field-prefix">' . $element['#field_prefix'] . '</span> ' : '';
-  $suffix = isset($element['#field_suffix']) ? ' <span class="field-suffix">' . $element['#field_suffix'] . '</span>' : '';
-
-  $classes = array();
-  if (isset($element['#attributes']['class']) && !empty($element['#attributes']['class'])) {
-    $classes = $element['#attributes']['class'];
-  }
-  $classes[] = 'prp_checkbox_links';
-
-  $output .= ' ' . $prefix . $element['#children'] . $suffix;
-  $options = array('attributes' => array('id' => $element['#id'] . '-link', 'class' => $classes), 'html' => FALSE);
-  $output .= ' ' . theme('link', array('text' => $element['#title'], 'path' => '#', 'options' => $options)) . "\n";
-
-  if (!empty($element['#description'])) {
-    $output .= '<div class="description">' . $element['#description'] . "</div>\n";
-  }
-  
-  $output .= "</div>\n";
-  
-  $output .= '<script type="text/javascript">';
-    $output .= 'jQuery("#'. $element['#id'] . '-link' .'").click(function() {var checkbox_id = jQuery(this).attr("id").replace(/-link$/, ""); jQuery("#" + checkbox_id).attr("checked", true); jQuery(this).parents("form:first").submit(); return false;})';
-  $output .= '</script>';
-
-  return $output;
+function THEMENAME_form_FORMID_alter(&$form) {
+  // .. add example of how to add classes to fields and buttons.
 }
