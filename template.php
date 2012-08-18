@@ -72,7 +72,7 @@ function THEMENAME_preprocess(&$vars, $hook) {
  *
  * Adds classes to <body> based on path.
  */
-function designguide_preprocess_html(&$vars) {
+function THEMENAME_preprocess_html(&$vars) {
   // Get the current path and break it into sections.
   $path_alias = drupal_get_path_alias();
   $parts = explode('/', $vars['page']['path_alias']);

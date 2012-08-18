@@ -14,3 +14,21 @@ Secondly the functions expand on Drupal core's template suggestions and give exa
  - Replace any instance of MENU_NAME or FORMID with the system name of the menu or formID of the form.
  - Adapt, remove or combine conditions as your design dictates.
  - Remove all unneeded code.
+ 
+## The Render Array And You
+Most of these preprocess functions work by manipulating Drupal's render arrays. A reasonable understanding of how they work are really recommended even though just pasting code would probably work 8 times out of 10.
+
+Here is some suggested reading:
+- Render Arrays in Drupal 7: http://drupal.org/node/930760
+- The Scary Render Array by Erik Stielstra: http://cocoate.com/ddbook/scary-render-array
+
+## Mostly Consistent (and Harmless)
+The structure of your render arrays will often vary depending on your base theme and installed modules. Themes like Omega and modules like Context change the structure of the render arrays.
+
+### Inspect render arrays
+Remember you can always inspect render arrays. 
+
+The best way to do this is to install and enable Devel module (drupal.org/project/devel). This allows you to print out nicely formatted render arrays with either:
+
+- kpr($vars) that prints out the information when the function is run, or
+- dsm($vars) that prints out the information in the Drupal messages.
