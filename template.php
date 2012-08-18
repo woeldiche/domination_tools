@@ -72,9 +72,8 @@ function THEMENAME_preprocess(&$vars, $hook) {
  *
  * Adds classes to <body> based on path.
  */
-function designguide_preprocess_html(&$vars) {
+function THEMENAME_preprocess_html(&$vars) {
   // Get the current path and break it into sections.
-  $path_alias = drupal_get_path_alias();
   $parts = explode('/', $vars['page']['path_alias']);
 
   // Add classes to body based on first section of path.    
@@ -96,7 +95,7 @@ function designguide_preprocess_html(&$vars) {
     case 'path_foo-list':
     case 'path_baz-list':
       $vars['classes_array'][] = 'list-page';
-      
+      break;
     default:
       break;
   }
@@ -113,10 +112,12 @@ function designguide_preprocess_html(&$vars) {
  *   <?php endif; ?>
  */
 function THEMENAME_preprocess_page(&$vars) {
-  if (overlay_get_mode() == 'child') {
-    $vars['in_overlay'] = TRUE;
-  } else {
-    $vars['in_overlay'] = FALSE;
+  if (module_exists('overlay')) {
+    if (overlay_get_mode() == 'child') {
+      $vars['in_overlay'] = TRUE;
+    } else {
+      $vars['in_overlay'] = FALSE;
+    }
   }
 }
 
@@ -202,7 +203,8 @@ function THEMENAME_preprocess_block(&$vars, $hook) {
         // And style standard blocks.
         case 'block':
           $vars['attributes_array']['class'][] = 'block-secondary';
-        
+          break;
+
         default:
           break;
       }
