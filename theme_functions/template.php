@@ -5,10 +5,10 @@
  * Most of these functions are intended to inject classes for styling into
  * your Drupal site to allow for a more object oriented approach to CSS.
  *
- * Secondly the functions expand on Drupal core's template suggestions and 
+ * Secondly the functions expand on Drupal core's template suggestions and
  * give examples of how to insert custom template suggestions to streamline
  * the number of tpl.php-files in your theme.
- * 
+ *
  * - Replace any instance of THEMENAME with the system name of the theme.
  * - Replace any instance of MENU_NAME or FORMID with the system name of the
  *   menu or formID of the form.
@@ -20,7 +20,7 @@
 
 /**
  * Expand Drupal's standard template suggestions.
- * 
+ *
  * Some options are:
  * - For page.tpl.php:
  *   - Node type:   $vars['node']->type
@@ -30,7 +30,7 @@
  *   - Node type:   $vars['type']
  */
 function THEMENAME_preprocess(&$vars, $hook) {
-  
+
   // Add template suggestions for page.tpl.php.
   if ($hook == 'page') {
     // Check if the page has a node type and add template suggestion.
@@ -39,16 +39,16 @@ function THEMENAME_preprocess(&$vars, $hook) {
       $vars['theme_hook_suggestions'][] = 'page__node__' . $vars['node']->type;
     }
   }
-  
+
   // Add template suggestions for node.tpl.php.
-  if ($hook == 'node') {  
+  if ($hook == 'node') {
     // Pattern: node--[view mode].tpl.php including custom view modes.
     $vars['theme_hook_suggestions'][] = 'node__' . $vars['view_mode'];
-    
+
     // Pattern: node--[node type]--[view mode].tpl.php.
-    $vars['theme_hook_suggestions'][] = 'node__' . $vars['type'] . '__' . $vars['view_mode'];    
+    $vars['theme_hook_suggestions'][] = 'node__' . $vars['type'] . '__' . $vars['view_mode'];
   }
-  
+
   // Add template suggestions for block.tpl.php.
   if ($hook == 'block') {
     // Add theme suggestion based module.
@@ -57,12 +57,12 @@ function THEMENAME_preprocess(&$vars, $hook) {
       case 'menu_block':
         $vars['theme_hook_suggestions'][] = 'block__navigation';
         break;
-      
+
       // Render some blocks without wrapper and leave it to the module.
       case 'views':
       case 'mini_panels':
         $vars['theme_hook_suggestions'][] = 'block__nowrapper';
-      
+
       default:
         break;
     }
@@ -79,7 +79,7 @@ function THEMENAME_preprocess_html(&$vars) {
   // Get the current path and break it into sections.
   $parts = explode('/', drupal_get_path_alias());
 
-  // Add classes to body based on first section of path.    
+  // Add classes to body based on first section of path.
   switch ($parts[0]) {
     case 'path_foo':
       $vars['classes_array'][] = 'section-foo';
@@ -92,7 +92,7 @@ function THEMENAME_preprocess_html(&$vars) {
       $vars['classes_array'][] = 'section-baz';
       break;
   }
-  
+
   // Add classes based on combined first and second section.
   switch ($parts[0] . '-' . $parts[1]) {
     case 'path_foo-list':
@@ -103,6 +103,7 @@ function THEMENAME_preprocess_html(&$vars) {
       break;
   }
 }
+
 
 /**
  * Sets variable that tells the page if it is being rendered in the overlay.
@@ -141,28 +142,28 @@ function THEMENAME_preprocess_block(&$vars, $hook) {
    */
   // Check if block was created by views.
   if ($vars['elements']['#block']->module == 'views') {
-    
+
     // Get views name from $vars['elements']['#block']->delta.
     $block_delta = explode('-', $vars['elements']['#block']->delta);
     $views_name = $block_delta[0];
-           
+
     // Add classes based on views name.
     switch ($views_name) {
       case 'view_foo':
       case 'view_bar':
         $vars['title_attributes_array']['class'][] = 'title-list';
         break;
-      
+
       case 'view_baz':
         $vars['title_attributes_array']['class'] = 'title-block';
         $vars['classes_array'][] = 'block-secondary';
         break;
-      
+
       default:
         $vars['title_attributes_array']['class'][] = 'title-block';
-    }      
-  }   
-        
+    }
+  }
+
   /**
    * Add classes based on region.
    */
@@ -172,29 +173,29 @@ function THEMENAME_preprocess_block(&$vars, $hook) {
     case 'region_baz':
       $vars['title_attributes_array']['class'][] = 'title-list';
       break;
-    
+
     case 'region_foobar':
       $vars['classes_array'][] = 'block-list';
       break;
-      
+
     default;
   }
-  
-  /* 
+
+  /*
    * Add classes based on module excluding certain regions.
    */
-  switch ($vars['elements']['#block']->region) { 
+  switch ($vars['elements']['#block']->region) {
 
     // Exclude certain blocks in certain regions.
     case 'footer_sitemap':
     case 'user_first':
-    case 'user_second': 
+    case 'user_second':
     case 'menu':
     case 'footer_first':
-    case 'footer_second': 
+    case 'footer_second':
       // Do nothing.
       break;
-       
+
     default:
       switch($vars['elements']['#block']->module) {
         // For the rest of the regions add classes to navigation blocks.
@@ -202,7 +203,7 @@ function THEMENAME_preprocess_block(&$vars, $hook) {
         case 'menu_block':
           $vars['attributes_array']['class'][] = 'block-style-menu';
           break;
-        
+
         // And style standard blocks.
         case 'block':
           $vars['attributes_array']['class'][] = 'block-secondary';
@@ -217,7 +218,7 @@ function THEMENAME_preprocess_block(&$vars, $hook) {
 
 /**
  * Implements hook_preprocess_node.
- * 
+ *
  * Add styling classes based on content type.
  *
  * Good options are:
@@ -235,7 +236,7 @@ function THEMENAME_preprocess_node(&$vars) {
     default:
       break;
   }
-  
+
   // Add classes & theme hook suggestions based on view mode.
   switch ($vars['view_mode']) {
     case 'block_display':
@@ -244,13 +245,12 @@ function THEMENAME_preprocess_node(&$vars) {
       $vars['attributes_array']['class'][] = 'block-content';
       $vars['attributes_array']['class'][] = 'st-spot';
       $vars['attributes_array']['class'][] = 'vgrid';
-      $vars['attributes_array']['class'][] = 'clearfix';      
+      $vars['attributes_array']['class'][] = 'clearfix';
       break;
-      
+
     default:
       break;
   }
-  
 }
 
 
@@ -270,11 +270,11 @@ function THEMENAME_preprocess_field(&$vars,$hook) {
     case 'body':
       $vars['classes_array'][] = 'text-content';
       break;
-    
+
     case 'field_summary':
       $vars['classes_array'][] = 'text-teaser';
       break;
-    
+
     case 'field_location':
     case 'field_date':
     case 'field_price':
@@ -285,29 +285,29 @@ function THEMENAME_preprocess_field(&$vars,$hook) {
       // Replace classes entirely, instead of adding extra.
       $vars['classes_array'] = array('list-definition', 'text-content');
       break;
-    
+
     case 'field_image':
       // Replace classes entirely, instead of adding extra.
       $vars['classes_array'] = array('title-image');
       break;
-    
+
     default:
       break;
   }
-  
+
   // Add classes to body based on content type and view mode.
   if ($vars['element']['#field_name'] = 'body') {
-    
+
     // Add classes to Foobar content type.
     if ($content_type == 'foobar') {
       $vars['classes_array'][] = 'text-secondary';
-    } 
-    
+    }
+
     // Add classes to other content types with view mode 'teaser';
     elseif ($view_mode == 'teaser') {
       $vars['classes_array'][] = 'text-secondary';
     }
-    
+
     // The rest is text-content.
     else {
       $vars['classes_array'][] = 'text-content';
@@ -323,7 +323,7 @@ function THEMENAME_preprocess_field(&$vars,$hook) {
  * Adds custom template suggestions.
  */
 function THEMENAME_preprocess_views_view (&$vars) {
-  /** 
+  /**
    * Add custom template suggestions to specific views.
    */
   switch ($vars['view']->name) {
@@ -332,11 +332,11 @@ function THEMENAME_preprocess_views_view (&$vars) {
     case 'view_baz':
       $vars['theme_hook_suggestions'][] = 'views_view__no_wrapper';
       break;
-    
+
     default:
       break;
   }
-  
+
   /**
    * Add alternating classes to View Foo based on offset.
    */
@@ -344,47 +344,48 @@ function THEMENAME_preprocess_views_view (&$vars) {
     switch ($vars['view']->offset) {
       case 0:
         break;
-      
+
       case 1:
         $vars['classes_array'][] = 'st-magenta';
         break;
-      
+
       case 2:
         $vars['classes_array'][] = 'st-yellow';
         break;
-      
+
       case 3:
         $vars['classes_array'][] = 'st-petroleum';
         break;
-      
+
       // Set same style on the rest.
       default:
         $vars['classes_array'][] = 'st-default';
         break;
-    }    
+    }
   }
 }
 
+
 /**
  * Implements template_preprocess_views_views_fields().
- * 
+ *
  * Shows/hides summary on tiles based on presence of images.
  */
 function THEMENAME_preprocess_views_view_fields(&$vars) {
   if ($vars['view']->name == 'nodequeue_1') {
-    
+
     // Check if we have both an image and a summary
     if (isset($vars['fields']['field_image'])) {
-      
+
       // If a combined field has been created, unset it and just show image
       if (isset($vars['fields']['nothing'])) {
         unset($vars['fields']['nothing']);
       }
-    
+
     } elseif (isset($vars['fields']['title'])) {
       unset ($vars['fields']['title']);
     }
-    
+
     // Always unset the separate summary if set
     if (isset($vars['fields']['field_summary'])) {
       unset($vars['fields']['field_summary']);
@@ -395,7 +396,7 @@ function THEMENAME_preprocess_views_view_fields(&$vars) {
 
 /**
  * Implements template_preprocess_panels_pane().
- * 
+ *
  * Adds classes for styling.
  */
 function THEMENAME_preprocess_panels_pane(&$vars) {
@@ -415,7 +416,7 @@ function THEMENAME_preprocess_panels_pane(&$vars) {
 
       default;
     }
-  
+
   /**
    * add classes to classes to labels/pane-titles for views panes.
    */
@@ -427,16 +428,16 @@ function THEMENAME_preprocess_panels_pane(&$vars) {
         $vars['title_attributes_array']['class'][] = 'content-footer-title';
         $vars['title_attributes_array']['class'][] = 'text-secondary';
         break;
-        
+
       case 'display_name_bar':
       case 'display_name_baz':
         $vars['title_attributes_array']['class'][] = 'title-field';
 
-      default: 
+      default:
         break;
     }
   }
-  
+
   /**
    * Add classes to labels/pane-titles based on location.
    */
@@ -450,7 +451,7 @@ function THEMENAME_preprocess_panels_pane(&$vars) {
 
 /**
  * Implements theme_menu_tree().
- * 
+ *
  * Adds classes to all menu wrappers.
  */
 function THEMENAME_menu_tree($vars) {
@@ -470,7 +471,7 @@ function THEMENAME_menu_tree__MENU_NAME($vars) {
 
 /**
  * Implements hook_form_FORMID_alter().
- * 
+ *
  * Adds classes to items on specific form.
  */
 function THEMENAME_form_FORMID_alter(&$form) {
@@ -492,7 +493,7 @@ function THEMENAME_form_FORMID_alter(&$form) {
         case 'foo':
           $item['#attributes']['class'][] = 'text-label';
           break;
-          
+
         default:
           $item['#attributes']['class'][] = 'text-form';
           break;
@@ -504,7 +505,7 @@ function THEMENAME_form_FORMID_alter(&$form) {
 
 /**
  * Implements hook_form_FORMID_alter().
- * 
+ *
  * Adds classes to items all forms based on item type.
  */
 function THEMENAME_form_alter(&$form) {
@@ -531,7 +532,7 @@ function THEMENAME_form_alter(&$form) {
         case 'foo':
           $item['#attributes']['class'][] = 'text-label';
           break;
-        
+
         case 'fieldset':
           // If type is fieldset, look for fields inside.
           foreach ($item as &$child) {
@@ -541,18 +542,18 @@ function THEMENAME_form_alter(&$form) {
                   $item['#attributes']['class'][] = 'button';
                   $item['#attributes']['class'][] = 'submit';
                   break;
-        
+
                 case 'textfield':
                 case 'textarea':
                   $item['#attributes']['class'][] = 'text-secondary';
                   break;
-        
+
                 case 'foo':
                   $item['#attributes']['class'][] = 'text-label';
                   break;
             }
           }
-          
+
         default:
           $item['#attributes']['class'][] = 'text-form';
           break;
