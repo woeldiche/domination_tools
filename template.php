@@ -81,13 +81,14 @@ function designguide_preprocess_html(&$vars) {
   switch ($parts[0]) {
     case 'path_foo':
       $vars['classes_array'][] = 'section-foo';
-    
+      break;
     case 'path_bar':
     case 'path_baz':
       $vars['classes_array'][] = 'section-bar';
-    
+      break;
     default:
       $vars['classes_array'][] = 'section-baz';
+      break;
   }
   
   // Add classes based on combined first and second section.
