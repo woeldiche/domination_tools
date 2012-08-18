@@ -74,20 +74,20 @@ function THEMENAME_preprocess(&$vars, $hook) {
  */
 function THEMENAME_preprocess_html(&$vars) {
   // Get the current path and break it into sections.
-  $path_alias = drupal_get_path_alias();
   $parts = explode('/', $vars['page']['path_alias']);
 
   // Add classes to body based on first section of path.    
   switch ($parts[0]) {
     case 'path_foo':
       $vars['classes_array'][] = 'section-foo';
-    
+      break;
     case 'path_bar':
     case 'path_baz':
       $vars['classes_array'][] = 'section-bar';
-    
+      break;
     default:
       $vars['classes_array'][] = 'section-baz';
+      break;
   }
   
   // Add classes based on combined first and second section.
@@ -95,7 +95,7 @@ function THEMENAME_preprocess_html(&$vars) {
     case 'path_foo-list':
     case 'path_baz-list':
       $vars['classes_array'][] = 'list-page';
-      
+      break;
     default:
       break;
   }
@@ -112,10 +112,12 @@ function THEMENAME_preprocess_html(&$vars) {
  *   <?php endif; ?>
  */
 function THEMENAME_preprocess_page(&$vars) {
-  if (overlay_get_mode() == 'child') {
-    $vars['in_overlay'] = TRUE;
-  } else {
-    $vars['in_overlay'] = FALSE;
+  if (module_exists('overlay')) {
+    if (overlay_get_mode() == 'child') {
+      $vars['in_overlay'] = TRUE;
+    } else {
+      $vars['in_overlay'] = FALSE;
+    }
   }
 }
 
@@ -201,7 +203,8 @@ function THEMENAME_preprocess_block(&$vars, $hook) {
         // And style standard blocks.
         case 'block':
           $vars['attributes_array']['class'][] = 'block-secondary';
-        
+          break;
+
         default:
           break;
       }
