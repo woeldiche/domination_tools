@@ -62,9 +62,6 @@ function THEMENAME_preprocess(&$vars, $hook) {
       case 'views':
       case 'mini_panels':
         $vars['theme_hook_suggestions'][] = 'block__nowrapper';
-
-      default:
-        break;
     }
   }
 }
@@ -84,23 +81,25 @@ function THEMENAME_preprocess_html(&$vars) {
     case 'path_foo':
       $vars['classes_array'][] = 'section-foo';
       break;
+
     case 'path_bar':
     case 'path_baz':
       $vars['classes_array'][] = 'section-bar';
       break;
+
     default:
       $vars['classes_array'][] = 'section-baz';
       break;
   }
 
   // Add classes based on combined first and second section.
-  switch ($parts[0] . '-' . $parts[1]) {
-    case 'path_foo-list':
-    case 'path_baz-list':
-      $vars['classes_array'][] = 'list-page';
-      break;
-    default:
-      break;
+  if (count($parts) >= 2) {
+    switch ($parts[0] . '-' . $parts[1]) {
+      case 'path_foo-list':
+      case 'path_baz-list':
+        $vars['classes_array'][] = 'list-page';
+        break;
+    }
   }
 }
 
@@ -207,9 +206,6 @@ function THEMENAME_preprocess_block(&$vars, $hook) {
         case 'block':
           $vars['attributes_array']['class'][] = 'block-secondary';
           break;
-
-        default:
-          break;
       }
   }
 }
@@ -232,8 +228,6 @@ function THEMENAME_preprocess_node(&$vars) {
       $vars['attributes_array']['class'][] = 'content-wrapper';
       $vars['attributes_array']['class'][] = 'text-content';
       break;
-    default:
-      break;
   }
 
   // Add classes & theme hook suggestions based on view mode.
@@ -246,11 +240,7 @@ function THEMENAME_preprocess_node(&$vars) {
       $vars['attributes_array']['class'][] = 'vgrid';
       $vars['attributes_array']['class'][] = 'clearfix';
       break;
-
-    default:
-      break;
   }
-
 }
 
 
@@ -299,12 +289,12 @@ function THEMENAME_preprocess_field(&$vars,$hook) {
   if ($vars['element']['#field_name'] = 'body') {
 
     // Add classes to Foobar content type.
-    if ($content_type == 'foobar') {
+    if ($vars['element']['#bundle'] == 'foobar') {
       $vars['classes_array'][] = 'text-secondary';
     }
 
     // Add classes to other content types with view mode 'teaser';
-    elseif ($view_mode == 'teaser') {
+    elseif ($vars['element']['#view_mode'] == 'teaser') {
       $vars['classes_array'][] = 'text-secondary';
     }
 
@@ -322,7 +312,7 @@ function THEMENAME_preprocess_field(&$vars,$hook) {
  * Adds styling classes to views.
  * Adds custom template suggestions.
  */
-function THEMENAME_preprocess_views_view (&$vars) {
+function THEMENAME_preprocess_views_view(&$vars) {
   /**
    * Add custom template suggestions to specific views.
    */
@@ -331,9 +321,6 @@ function THEMENAME_preprocess_views_view (&$vars) {
     case 'view_bar':
     case 'view_baz':
       $vars['theme_hook_suggestions'][] = 'views_view__no_wrapper';
-      break;
-
-    default:
       break;
   }
 
@@ -412,8 +399,6 @@ function THEMENAME_preprocess_panels_pane(&$vars) {
       case 'field_organizer':
       case 'field_contact_information':
         $vars['title_attributes_array']['class'] = array('list-key');
-
-      default;
     }
   }
 
@@ -432,9 +417,6 @@ function THEMENAME_preprocess_panels_pane(&$vars) {
       case 'display_name_bar':
       case 'display_name_baz':
         $vars['title_attributes_array']['class'][] = 'title-field';
-
-      default:
-        break;
     }
   }
 
