@@ -415,6 +415,7 @@ function THEMENAME_preprocess_panels_pane(&$vars) {
 
       default;
     }
+  }
 
   /**
    * add classes to classes to labels/pane-titles for views panes.
@@ -478,85 +479,70 @@ function THEMENAME_form_FORMID_alter(&$form) {
   $form['actions']['submit']['#attributes']['class'][] = 'button';
   $form['actions']['submit']['#attributes']['class'][] = 'submit';
 
-  // Add classes to items based on type. Will ignore fields grouped inside fieldsets.
-  foreach ($form as &$item) {
-    // Run through array and act on every item with a #type attribute.
-    // Test if $item is an array and has a type.
-    if (is_array($item) && isset($item['#type'])) {
-      switch ($item['#type']) {
-        case 'textfield':
-        case 'textarea':
-          $item['#attributes']['class'][] = 'text-secondary';
-          break;
-
-        case 'foo':
-          $item['#attributes']['class'][] = 'text-label';
-          break;
-
-        default:
-          $item['#attributes']['class'][] = 'text-form';
-          break;
-      }
-    }
-  }
+  // Add classes to form items base on their type by walking through the form
+  // array mapping item types to classes.
+  array_walk($form, 'THEMENAME_form_walker', array(
+    'submit' => array(
+      'button',
+      'submit',
+    ),
+    'textfield' => array('text-secondary'),
+    'textarea' => array('text-secondary'),
+    'password' => array('password'),
+    'foo' => array('foo'),
+  ));
 }
 
 
 /**
- * Implements hook_form_FORMID_alter().
+ * Implements hook_form_alter().
  *
  * Adds classes to items all forms based on item type.
  */
-function THEMENAME_form_alter(&$form) {
+function THEMENAME_form_alter(&$form, &$form_state, $form_id) {
   // Add classes to submit button.
   $form['actions']['submit']['#attributes']['class'][] = 'button';
   $form['actions']['submit']['#attributes']['class'][] = 'submit';
 
-  // Add classes to items based on type. Will ignore fields grouped inside fieldsets.
-  foreach ($form as &$item) {
-    // Run through array and act on every item with a #type attribute.
-    // Test if $item is an array and has a type.
-    if (is_array($item) && isset($item['#type'])) {
-      switch ($item['#type']) {
-        case 'submit':
-          $item['#attributes']['class'][] = 'button';
-          $item['#attributes']['class'][] = 'submit';
-          break;
+  // Add classes to form items base on their type by walking through the form
+  // array mapping item types to classes.
+  array_walk($form, 'dragon_form_walker', array(
+    'submit' => array(
+      'button',
+      'submit',
+    ),
+    'textfield' => array('text-secondary'),
+    'textarea' => array('text-secondary'),
+    'password' => array('password'),
+    'foo' => array('foo'),
+  ));
+}
 
-        case 'textfield':
-        case 'textarea':
-          $item['#attributes']['class'][] = 'text-secondary';
-          break;
+/**
+ * Form walker which addes classes to the array elements based on item types.
+ *
+ * @param type $item
+ * @param type $key
+ * @param type $map
+ */
+function dragon_form_walker(&$item, &$key, $map) {
+  // If the item is an array and have the "#type" key it has to be a form item.
+  if (is_array($item) && isset($item['#type'])) {
+    // Check if "map" have the type defined, if not set the default class(es).
+    $classes = isset($map[$item['#type']]) ? $map[$item['#type']] : $map['default'];
 
-        case 'foo':
-          $item['#attributes']['class'][] = 'text-label';
-          break;
+    // Check that the class attribute have been sat. If not create the class
+    // array.
+    if (isset($item['#attributes']['class'])) {
+      $item['#attributes']['class'] += $classes;
+    }
+    else {
+      $item['#attributes'] = array('class' => $classes);
+    }
 
-        case 'fieldset':
-          // If type is fieldset, look for fields inside.
-          foreach ($item as &$child) {
-            if (is_array($child) && isset($child['#type'])) {
-              switch ($item['#type']) {
-                case 'submit':
-                  $item['#attributes']['class'][] = 'button';
-                  $item['#attributes']['class'][] = 'submit';
-                  break;
-
-                case 'textfield':
-                case 'textarea':
-                  $item['#attributes']['class'][] = 'text-secondary';
-                  break;
-
-                case 'foo':
-                  $item['#attributes']['class'][] = 'text-label';
-                  break;
-            }
-          }
-
-        default:
-          $item['#attributes']['class'][] = 'text-form';
-          break;
-      }
+    // If the type is a fieldset walk that to add classes to its form items.
+    if ($item['#type'] == 'fieldset') {
+      array_walk($item, 'dragon_form_walker');
     }
   }
 }
