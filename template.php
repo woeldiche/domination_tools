@@ -428,6 +428,12 @@ function THEMENAME_preprocess_panels_pane(&$vars) {
       $vars['title_attributes_array']['class'][] = 'title-block';
       break;
   }
+
+  // Suggestions base on sub-type.
+  $vars['theme_hook_suggestions'][] = 'panels_pane__' . str_replace('-', '__', $vars['pane']->subtype);
+
+  // Suggestions on panel pane.
+  $vars['theme_hook_suggestions'][] = 'panels_pane__' . $vars['pane']->panel;
 }
 
 
