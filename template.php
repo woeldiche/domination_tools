@@ -488,7 +488,7 @@ function THEMENAME_form_alter(&$form, &$form_state, $form_id) {
 
   // Add classes to form items base on their type by walking through the form
   // array mapping item types to classes.
-  array_walk($form, 'dragon_form_walker', array(
+  array_walk($form, 'THEMENAME_form_walker', array(
     'submit' => array(
       'button',
       'submit',
@@ -507,7 +507,7 @@ function THEMENAME_form_alter(&$form, &$form_state, $form_id) {
  * @param type $key
  * @param type $map
  */
-function dragon_form_walker(&$item, &$key, $map) {
+function THEMENAME_form_walker(&$item, &$key, $map) {
   // If the item is an array and have the "#type" key it has to be a form item.
   if (is_array($item) && isset($item['#type'])) {
     // Check if "map" have the type defined, if not set the default class(es).
@@ -524,7 +524,7 @@ function dragon_form_walker(&$item, &$key, $map) {
 
     // If the type is a fieldset walk that to add classes to its form items.
     if ($item['#type'] == 'fieldset') {
-      array_walk($item, 'dragon_form_walker');
+      array_walk($item, 'THEMENAME_form_walker');
     }
   }
 }
