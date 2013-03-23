@@ -1,0 +1,104 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Domination tools by woeldiche</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Domination tools</h1>
+        <p>Code snippets and documentation for dominating the theme layer and creating efficient, extensible and not least submissive markup.</p>
+
+        <p class="view"><a href="https://github.com/woeldiche/domination_tools">View the Project on GitHub <small>woeldiche/domination_tools</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/woeldiche/domination_tools/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/woeldiche/domination_tools/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/woeldiche/domination_tools">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h1>A toolbox of functions to help you theme Drupal sites.</h1>
+
+<p>Code snippets and documentation for dominating the theme layer and creating efficient, extensible and not least submissive markup.</p>
+
+<h2>Injecting classes</h2>
+
+<p>Most of these functions are intended to inject classes for styling into your Drupal site to allow for a more object oriented approach to CSS.</p>
+
+<h2>Expanding template suggestions</h2>
+
+<p>Secondly the functions expand on Drupal core's template suggestions and give examples of how to insert custom template suggestions to streamline the number of tpl.php-files in your theme.</p>
+
+<h2>How to use it</h2>
+
+<ul>
+<li>Copy the functions you need to your template.php</li>
+<li>Replace any instance of THEMENAME with the system name of the theme.</li>
+<li>Replace any instance of MENU_NAME or FORMID with the system name of the menu or formID of the form.</li>
+<li>Adapt, remove or combine conditions as your design dictates.</li>
+<li>Remove all unneeded code.</li>
+</ul><h2>The Render Array And You</h2>
+
+<p>Most of these preprocess functions work by manipulating Drupal's render arrays. A reasonable understanding of how they work are really recommended even though just pasting code would probably work 8 times out of 10.</p>
+
+<p>Here is some suggested reading:</p>
+
+<ul>
+<li>Render Arrays in Drupal 7: <a href="http://drupal.org/node/930760">http://drupal.org/node/930760</a>
+</li>
+<li>The Scary Render Array by Erik Stielstra: <a href="http://cocoate.com/ddbook/scary-render-array">http://cocoate.com/ddbook/scary-render-array</a>
+</li>
+</ul><h2>Mostly Consistent (and Harmless)</h2>
+
+<p>The structure of your render arrays will often vary depending on your base theme and installed modules. Themes like Omega and modules like Context change the structure of the render arrays.</p>
+
+<h3>Inspect render arrays</h3>
+
+<p>Remember you can always inspect render arrays.</p>
+
+<p>The best way to do this is to install and enable Devel module (drupal.org/project/devel). This allows you to print out nicely formatted render arrays with either:</p>
+
+<ul>
+<li>kpr($vars) that prints out the information when the function is run, or</li>
+<li>dsm($vars) that prints out the information in the Drupal messages.</li>
+</ul><h2>Contributors</h2>
+
+<p>Contributions by:</p>
+
+<ul>
+<li>Jesper Kristensen: Cableman - <a href="https://github.com/cableman">https://github.com/cableman</a>
+</li>
+<li>Marek Sotak: Mareksotak - <a href="https://github.com/mareksotak">https://github.com/mareksotak</a>
+</li>
+</ul>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/woeldiche">woeldiche</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+              <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-39544499-1");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
+  </body>
+</html>
